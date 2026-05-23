@@ -62,6 +62,16 @@ export async function upsertProductAction(formData: FormData) {
   redirect("/admin/products");
 }
 
+export async function reorderProductsAction(orderedIds: string[]): Promise<void> {
+  const supabase = await createClient();
+  await supabase.from("products").upsert(
+    orderedIds.map((id, i) => ({ id, sort_order: i }))
+  );
+  revalidatePath("/admin/products");
+  revalidatePath("/shop");
+  revalidatePath("/");
+}
+
 export async function deleteProductAction(id: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
