@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import OrderStatusSelect from "@/components/admin/OrderStatusSelect";
 
@@ -33,7 +34,7 @@ export default async function AdminOrders() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div key={order.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 group hover:border-[#2D5016]/20 transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                 {/* Customer */}
                 <div>
@@ -47,7 +48,7 @@ export default async function AdminOrders() {
                   )}
                 </div>
 
-                {/* Status + total */}
+                {/* Status + total + view */}
                 <div className="flex items-center gap-4 flex-shrink-0">
                   <OrderStatusSelect
                     orderId={order.id}
@@ -64,6 +65,12 @@ export default async function AdminOrders() {
                       })}
                     </p>
                   </div>
+                  <Link
+                    href={`/admin/orders/${order.id}`}
+                    className="text-[12px] font-semibold text-[#2D5016] hover:text-[#C4602A] transition-colors whitespace-nowrap opacity-0 group-hover:opacity-100"
+                  >
+                    View →
+                  </Link>
                 </div>
               </div>
 
