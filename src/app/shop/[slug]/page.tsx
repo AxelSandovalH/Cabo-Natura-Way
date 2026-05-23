@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Tag } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -77,7 +78,7 @@ export default async function ProductPage({
             <div className="aspect-square rounded-3xl bg-gradient-to-br from-[#2D5016]/8 to-[#E8A838]/10 border border-gray-100 flex items-center justify-center relative overflow-hidden">
               {product.badge && (
                 <span
-                  className="absolute top-5 left-5 text-[11px] font-bold px-3 py-1.5 rounded-full text-white shadow-md"
+                  className="absolute top-5 left-5 text-[11px] font-bold px-3 py-1.5 rounded-full text-white shadow-md z-10"
                   style={{ backgroundColor: product.badge_color || "#2D5016" }}
                 >
                   {product.badge}
@@ -90,7 +91,18 @@ export default async function ProductPage({
                   </span>
                 </div>
               )}
-              <span className="text-[120px] select-none">{product.image_emoji}</span>
+              {product.image_url ? (
+                <Image
+                  src={product.image_url}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  priority
+                />
+              ) : (
+                <span className="text-[120px] select-none">{product.image_emoji}</span>
+              )}
             </div>
           </div>
 

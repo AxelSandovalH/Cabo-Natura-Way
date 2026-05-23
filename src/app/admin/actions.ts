@@ -39,6 +39,7 @@ export async function upsertProductAction(formData: FormData) {
     price:        parseFloat(formData.get("price") as string),
     unit:         (formData.get("unit")          as string).trim(),
     image_emoji:  (formData.get("image_emoji")   as string).trim() || "🌿",
+    image_url:    (formData.get("image_url")     as string).trim() || null,
     category_id:  (formData.get("category_id")   as string) || null,
     farmer_id:    (formData.get("farmer_id")      as string) || null,
     badge:        (formData.get("badge")          as string).trim() || null,

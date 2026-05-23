@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
+import ImageUpload from "@/components/admin/ImageUpload";
 import type { Product, Category, Farmer } from "@/lib/supabase/types";
 
 const EMOJIS = ["🥬","🍊","💧","🌿","🍯","🍋","🍅","🥕","🌽","🫑","🍇","🥑","🥦","🫚","🧄","🧅"];
@@ -25,6 +26,12 @@ export default function ProductForm({ product, categories, farmers, action }: Pr
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {product && <input type="hidden" name="id" value={product.id} />}
+
+      {/* Product image */}
+      <div>
+        <label className="block text-[12px] font-semibold text-gray-600 mb-2">Product Photo</label>
+        <ImageUpload currentUrl={product?.image_url} emoji={product?.image_emoji ?? "🌿"} />
+      </div>
 
       {/* Name + emoji */}
       <div className="grid grid-cols-3 gap-4">

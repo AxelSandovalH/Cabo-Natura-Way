@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -36,10 +37,20 @@ export default function ShopProductCard({ product }: { product: Product }) {
     <article className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-200 flex flex-col">
 
       {/* image — clicking navigates to detail page */}
-      <Link href={`/shop/${product.slug}`} className={`relative h-52 bg-gradient-to-br ${bg} flex items-center justify-center flex-shrink-0 block`}>
-        <span className="text-[80px] transition-transform duration-300 group-hover:scale-110 select-none">
-          {product.image_emoji}
-        </span>
+      <Link href={`/shop/${product.slug}`} className={`relative h-52 bg-gradient-to-br ${bg} flex items-center justify-center flex-shrink-0 block overflow-hidden`}>
+        {product.image_url ? (
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
+        ) : (
+          <span className="text-[80px] transition-transform duration-300 group-hover:scale-110 select-none">
+            {product.image_emoji}
+          </span>
+        )}
 
         {product.badge && (
           <Badge
