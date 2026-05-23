@@ -1,7 +1,8 @@
 "use server";
 
 import { createOrder } from "@/lib/supabase/queries";
-import type { Order } from "@/lib/supabase/types";
+import { sendAdminOrderNotification, sendCustomerConfirmation } from "@/lib/email";
+import type { Order, OrderItem } from "@/lib/supabase/types";
 
 export interface PlaceOrderResult {
   order: Order | null;
@@ -73,6 +74,30 @@ export async function placeOrderAction(
   if (!order) {
     return { order: null, error: "Something went wrong placing your order. Please try again." };
   }
+
+  // Build OrderItem shape so emails can render the line items
+  const orderItems: OrderItem[] = items.map((item, i) => ({
+    id:           `${order.id}-${i}`,
+    order_id:     order.id,
+    product_id:   item.product_id,
+    product_name: item.product_name,
+    unit_price:   item.unit_price,
+    quantity:     item.quantity,
+    subtotal:     item.unit_price * item.quantity,
+    created_at:   order.created_at,
+  }));
+
+  // Fire both emails — non-blocking so a mail failure never breaks the order
+  void Promise.allSettled([
+    sendAdminOrderNotification(order, orderItems),
+    sendCustomerConfirmation(order, orderItems),
+  ]).then((results) => {
+    results.forEach((r) => {
+      if (r.status === "rejected") {
+        console.error("[email] failed to send:", r.reason);
+      }
+    });
+  });
 
   return { order, error: null };
 }

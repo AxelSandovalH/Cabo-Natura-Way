@@ -57,7 +57,7 @@ export default function ShopProductCard({ product }: { product: Product }) {
             </span>
           </div>
         )}
-      </div>
+      </Link>
 
       {/* info */}
       <div className="p-5 flex flex-col flex-1">
