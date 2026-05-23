@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden overflow-x-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="font-heading text-lg font-semibold text-[#2D5016] flex items-center gap-2">
             <Clock className="w-4 h-4" /> Recent Orders
@@ -85,7 +85,7 @@ export default async function AdminDashboard() {
             No orders yet — share the store link!
           </div>
         ) : (
-          <table className="w-full text-[13px]">
+          <table className="w-full min-w-[480px] text-[13px]">
             <thead>
               <tr className="text-left border-b border-gray-100">
                 <th className="px-6 py-3 font-semibold text-gray-500">Customer</th>

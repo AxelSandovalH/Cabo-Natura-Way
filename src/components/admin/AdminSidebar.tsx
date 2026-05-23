@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  LayoutDashboard, Package, ShoppingBag, Users, LogOut, ExternalLink,
+  LayoutDashboard, Package, ShoppingBag, Users, LogOut, ExternalLink, X,
 } from "lucide-react";
 import AgaveLogo from "@/components/AgaveLogo";
 import { logoutAction } from "@/app/admin/actions";
@@ -20,15 +20,26 @@ function isActive(pathname: string, href: string) {
   return pathname.startsWith(href);
 }
 
-export default function AdminSidebar({ email }: { email: string }) {
+interface Props {
+  email: string;
+  mobileOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function AdminSidebar({ email, mobileOpen, onClose }: Props) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 flex-shrink-0 bg-[#1a2e0a] flex flex-col fixed inset-y-0 left-0 z-40">
-
-      {/* Logo */}
-      <div className="px-5 py-6 border-b border-white/10">
-        <Link href="/admin" className="flex items-center gap-3">
+    <aside
+      className={`
+        w-60 flex-shrink-0 bg-[#1a2e0a] flex flex-col fixed inset-y-0 left-0 z-40
+        transition-transform duration-300 ease-in-out
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+      `}
+    >
+      {/* Logo + mobile close */}
+      <div className="px-5 py-6 border-b border-white/10 flex items-center justify-between">
+        <Link href="/admin" className="flex items-center gap-3" onClick={onClose}>
           <AgaveLogo size={32} />
           <div>
             <p className="font-heading text-[11px] font-bold tracking-[.16em] uppercase text-white">
@@ -37,6 +48,13 @@ export default function AdminSidebar({ email }: { email: string }) {
             <p className="text-[9px] text-white/40 tracking-wider mt-0.5">Admin Panel</p>
           </div>
         </Link>
+        <button
+          onClick={onClose}
+          className="lg:hidden text-white/40 hover:text-white transition-colors p-1"
+          aria-label="Close menu"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Nav */}
@@ -47,6 +65,7 @@ export default function AdminSidebar({ email }: { email: string }) {
             <Link
               key={href}
               href={href}
+              onClick={onClose}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium transition-all ${
                 active
                   ? "bg-white/12 text-white"
@@ -55,7 +74,7 @@ export default function AdminSidebar({ email }: { email: string }) {
             >
               <Icon
                 className={`w-4 h-4 flex-shrink-0 transition-colors ${
-                  active ? "text-[#E8A838]" : "group-hover:text-[#E8A838]"
+                  active ? "text-[#E8A838]" : ""
                 }`}
               />
               {label}
