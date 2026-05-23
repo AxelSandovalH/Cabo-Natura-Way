@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -6,6 +7,13 @@ import { getProducts, getCategories } from "@/lib/supabase/queries";
 import ShopProductCard from "@/components/shop/ShopProductCard";
 import CategoryTabs from "@/components/shop/CategoryTabs";
 import type { Category } from "@/lib/supabase/types";
+
+export const metadata: Metadata = {
+  title: "Shop",
+  description:
+    "Browse fresh organic produce, artisan goods, and spring water sourced from Los Cabos farms. Same-day delivery to Cabo San Lucas, San José del Cabo, and the Corridor.",
+  alternates: { canonical: "https://cabonaturalway.com/shop" },
+};
 
 /* ── helpers ── */
 function buildTitle(slug: string | undefined, categories: Category[]) {
