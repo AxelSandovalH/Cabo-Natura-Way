@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ShoppingCart, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,8 @@ export default function ShopProductCard({ product }: { product: Product }) {
   return (
     <article className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:-translate-y-1 hover:shadow-xl transition-all duration-200 flex flex-col">
 
-      {/* image */}
-      <div className={`relative h-52 bg-gradient-to-br ${bg} flex items-center justify-center flex-shrink-0`}>
+      {/* image — clicking navigates to detail page */}
+      <Link href={`/shop/${product.slug}`} className={`relative h-52 bg-gradient-to-br ${bg} flex items-center justify-center flex-shrink-0 block`}>
         <span className="text-[80px] transition-transform duration-300 group-hover:scale-110 select-none">
           {product.image_emoji}
         </span>
@@ -64,9 +65,11 @@ export default function ShopProductCard({ product }: { product: Product }) {
           {product.farmer?.name ?? "Local Farm"} · {farmerCity}
         </p>
 
-        <h2 className="font-heading text-[17px] font-semibold text-[#2D5016] mb-1.5 leading-snug">
-          {product.name}
-        </h2>
+        <Link href={`/shop/${product.slug}`}>
+          <h2 className="font-heading text-[17px] font-semibold text-[#2D5016] hover:text-[#C4602A] transition-colors mb-1.5 leading-snug">
+            {product.name}
+          </h2>
+        </Link>
 
         {product.category && (
           <span className="inline-flex items-center gap-1 text-[10px] font-medium text-[#6B5B4B] bg-[#2D5016]/6 rounded-full px-2.5 py-0.5 w-fit mb-3">
