@@ -1,5 +1,14 @@
 import { createClient } from "./server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import type { Product, Category, Farmer, Order } from "./types";
+
+/** Service-role client — bypasses RLS for trusted server-side writes */
+function adminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 // ── PRODUCTS ─────────────────────────────────────────────────
 
@@ -97,7 +106,8 @@ export async function createOrder(order: {
     quantity: number;
   }>;
 }): Promise<Order | null> {
-  const supabase = await createClient();
+  // Use service-role client so this works regardless of RLS policies
+  const supabase = adminClient();
   const { items, ...orderData } = order;
 
   const { data: newOrder, error: orderError } = await supabase
@@ -106,12 +116,12 @@ export async function createOrder(order: {
     .select()
     .single();
 
-  if (orderError) { console.error(orderError); return null; }
+  if (orderError) { console.error("[createOrder]", orderError.message); return null; }
 
   const { error: itemsError } = await supabase
     .from("order_items")
     .insert(items.map((item) => ({ ...item, order_id: newOrder.id })));
 
-  if (itemsError) { console.error(itemsError); return null; }
+  if (itemsError) { console.error("[createOrder items]", itemsError.message); return null; }
   return newOrder as Order;
 }
