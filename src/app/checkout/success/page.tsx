@@ -3,7 +3,7 @@ import { CheckCircle2, MessageCircle } from "lucide-react";
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import CartClearer from "@/components/checkout/CartClearer";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default async function CheckoutSuccessPage({
 
   if (session_id) {
     try {
-      const session = await stripe.checkout.sessions.retrieve(session_id);
+      const session = await getStripe().checkout.sessions.retrieve(session_id);
       orderId = session.metadata?.order_id ?? null;
 
       if (orderId) {

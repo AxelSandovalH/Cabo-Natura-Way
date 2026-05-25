@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 // Service-role client — bypasses RLS so the webhook can update any order
 function adminSupabase() {
@@ -19,9 +19,9 @@ export async function POST(request: Request) {
     return new Response("Missing stripe-signature header", { status: 400 });
   }
 
-  let event: ReturnType<typeof stripe.webhooks.constructEvent>;
+  let event: import("stripe").Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
