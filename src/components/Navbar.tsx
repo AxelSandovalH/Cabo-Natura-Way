@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingCart, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import AgaveLogo from "@/components/AgaveLogo";
 import { useCart } from "@/lib/cart/CartContext";
 
 const navLinks = [
@@ -22,8 +22,8 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-10 h-16 flex items-center justify-between gap-6">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 flex-shrink-0">
-          <AgaveLogo size={36} />
+        <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+          <Image src="/logo.png" alt="Cabo Natural Way" width={38} height={38} className="object-contain" />
           <div className="leading-tight">
             <p className="font-heading text-[13px] font-bold tracking-[.16em] uppercase text-[#2D5016]">
               Cabo Natural Way
