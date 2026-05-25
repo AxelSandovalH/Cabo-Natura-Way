@@ -1,7 +1,11 @@
 import { Resend } from "resend";
 import type { Order, OrderItem } from "@/lib/supabase/types";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY ?? "");
+  return _resend;
+}
 
 const FROM_EMAIL  = "Cabo Natural Way <orders@cabonaturalway.com>";
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@cabonaturalway.com";
@@ -137,7 +141,7 @@ export async function sendAdminOrderNotification(
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM_EMAIL,
     to:      ADMIN_EMAIL,
     subject: `🛒 New Order #${id} — $${order.total.toFixed(2)} from ${order.customer_name}`,
@@ -261,7 +265,7 @@ export async function sendCustomerConfirmation(
 </body>
 </html>`;
 
-  await resend.emails.send({
+  await getResend().emails.send({
     from:    FROM_EMAIL,
     to:      order.customer_email,
     subject: `✅ Order #${id} confirmed — Cabo Natural Way`,
