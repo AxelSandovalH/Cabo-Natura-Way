@@ -3,25 +3,23 @@
 import { useState, useTransition, useEffect } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, ShoppingBag, CheckCircle2, Loader2,
+  ArrowLeft, ShoppingBag, CreditCard, Loader2,
   User, Truck,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/lib/cart/CartContext";
 import { placeOrderAction } from "./actions";
-import type { Order } from "@/lib/supabase/types";
 
 const DELIVERY_FEE          = 5;
 const FREE_DELIVERY_THRESHOLD = 50;
 
 /* ─────────────────────────────────────────── */
 export default function CheckoutPage() {
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal } = useCart();
 
-  const [hydrated, setHydrated]   = useState(false);
-  const [order, setOrder]         = useState<Order | null>(null);
+  const [hydrated, setHydrated]       = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, startTransition]  = useTransition();
 
   // Wait for cart to hydrate from localStorage before rendering
   useEffect(() => { setHydrated(true); }, []);
@@ -43,9 +41,9 @@ export default function CheckoutPage() {
       const result = await placeOrderAction(formData);
       if (result.error) {
         setServerError(result.error);
-      } else {
-        clearCart();
-        setOrder(result.order);
+      } else if (result.stripeUrl) {
+        // Redirect to Stripe hosted checkout (cart cleared on success page)
+        window.location.href = result.stripeUrl;
       }
     });
   }
@@ -63,7 +61,7 @@ export default function CheckoutPage() {
   }
 
   // ── Empty cart ──────────────────────────────────────────────
-  if (hydrated && items.length === 0 && !order) {
+  if (hydrated && items.length === 0) {
     return (
       <>
         <Navbar />
@@ -81,73 +79,6 @@ export default function CheckoutPage() {
           >
             Browse the Shop
           </Link>
-        </div>
-      </>
-    );
-  }
-
-  // ── Success screen ──────────────────────────────────────────
-  if (order) {
-    return (
-      <>
-        <Navbar />
-        <div className="min-h-[80vh] flex items-center justify-center px-6 py-16">
-          <div className="max-w-md w-full text-center">
-            {/* Animated check */}
-            <div className="w-20 h-20 rounded-full bg-[#2D5016]/10 flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-[#2D5016]" />
-            </div>
-
-            <h1 className="font-heading text-3xl font-bold text-[#2D5016] mb-2">
-              Order Placed! 🎉
-            </h1>
-            <p className="text-[15px] text-[#6B5B4B] mb-6">
-              Thanks{order.customer_name ? `, ${order.customer_name.split(" ")[0]}` : ""}! We received your order and will contact you via WhatsApp to confirm your delivery.
-            </p>
-
-            {/* Order details card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-left space-y-3 mb-8">
-              <div className="flex justify-between text-[13px]">
-                <span className="text-gray-500">Order number</span>
-                <span className="font-mono font-semibold text-[#2D5016] text-[12px]">
-                  #{order.id.slice(0, 8).toUpperCase()}
-                </span>
-              </div>
-              <div className="flex justify-between text-[13px]">
-                <span className="text-gray-500">Total</span>
-                <span className="font-bold text-[#2D5016]">${order.total.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[13px]">
-                <span className="text-gray-500">Delivery to</span>
-                <span className="font-medium text-gray-700 text-right max-w-[60%]">
-                  {order.delivery_address ?? "—"}
-                </span>
-              </div>
-              <div className="pt-3 border-t border-gray-100">
-                <p className="text-[12px] text-[#6B5B4B] flex items-start gap-2">
-                  <span className="text-lg leading-none">📱</span>
-                  We'll reach out to{" "}
-                  <strong>{order.customer_phone ?? order.customer_email}</strong>{" "}
-                  to confirm your delivery window.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link
-                href="/shop"
-                className="inline-flex items-center justify-center gap-2 bg-[#2D5016] hover:bg-[#3D6B1F] text-white rounded-full px-8 h-11 font-semibold text-[14px] transition-colors"
-              >
-                Continue Shopping
-              </Link>
-              <Link
-                href="/"
-                className="inline-flex items-center justify-center text-[14px] text-[#6B5B4B] hover:text-[#2D5016] px-4 h-11 transition-colors"
-              >
-                Back to Home
-              </Link>
-            </div>
-          </div>
         </div>
       </>
     );
@@ -308,17 +239,17 @@ export default function CheckoutPage() {
                     {isPending ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        Placing Order…
+                        Redirecting to payment…
                       </>
                     ) : (
                       <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        Place Order · ${total.toFixed(2)}
+                        <CreditCard className="w-4 h-4" />
+                        Pay · ${total.toFixed(2)}
                       </>
                     )}
                   </button>
                   <p className="text-center text-[11px] text-gray-400 mt-3">
-                    No payment required now — we'll confirm via WhatsApp 📱
+                    Secure payment via Stripe 🔒
                   </p>
                 </div>
               </div>
