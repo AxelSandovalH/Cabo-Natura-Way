@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import ImageUpload from "@/components/admin/ImageUpload";
 import type { Product, Category, Farmer } from "@/lib/supabase/types";
@@ -16,11 +16,16 @@ interface Props {
 
 export default function ProductForm({ product, categories, farmers, action }: Props) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError(null);
     const formData = new FormData(e.currentTarget);
-    startTransition(() => action(formData));
+    startTransition(async () => {
+      const result = await action(formData);
+      if (result?.error) setError(result.error);
+    });
   }
 
   return (
@@ -150,6 +155,12 @@ export default function ProductForm({ product, categories, farmers, action }: Pr
         <ToggleField name="in_stock"  label="In Stock"  defaultValue={product?.in_stock ?? true} />
         <ToggleField name="featured"  label="Featured"  defaultValue={product?.featured ?? false} />
       </div>
+
+      {error && (
+        <div className="px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-[13px] text-red-600">
+          Error: {error}
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center gap-3 pt-2">

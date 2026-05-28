@@ -57,12 +57,20 @@ export async function upsertProductAction(formData: FormData) {
     featured:     formData.getAll("featured").includes("true"),
   };
 
+  console.log("[upsertProductAction] payload:", JSON.stringify(payload));
+
   if (id) {
     const { error } = await supabase.from("products").update(payload).eq("id", id);
-    if (error) return { error: error.message };
+    if (error) {
+      console.error("[upsertProductAction] update error:", error.message, error.code);
+      return { error: error.message };
+    }
   } else {
     const { error } = await supabase.from("products").insert(payload);
-    if (error) return { error: error.message };
+    if (error) {
+      console.error("[upsertProductAction] insert error:", error.message, error.code);
+      return { error: error.message };
+    }
   }
 
   revalidatePath("/admin/products");

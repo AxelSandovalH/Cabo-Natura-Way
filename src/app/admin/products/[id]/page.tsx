@@ -1,7 +1,14 @@
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { upsertProductAction } from "@/app/admin/actions";
 import ProductForm from "@/components/admin/ProductForm";
+
+function adminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export default async function EditProductPage({
   params,
@@ -9,7 +16,7 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const supabase = adminClient();
 
   const isNew = id === "new";
 
