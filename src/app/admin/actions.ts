@@ -122,6 +122,7 @@ export async function upsertFarmerAction(formData: FormData) {
   }
 
   revalidatePath("/admin/farmers");
+  revalidatePath("/farmers");
   revalidatePath("/");
   redirect("/admin/farmers");
 }
