@@ -13,7 +13,7 @@ function adminClient() {
 // ── PRODUCTS ─────────────────────────────────────────────────
 
 export async function getFeaturedProducts(): Promise<Product[]> {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(*), farmer:farmers(*)")
@@ -25,7 +25,7 @@ export async function getFeaturedProducts(): Promise<Product[]> {
 }
 
 export async function getProducts(categorySlug?: string): Promise<Product[]> {
-  const supabase = await createClient();
+  const supabase = adminClient();
 
   let query = supabase
     .from("products")
@@ -50,7 +50,7 @@ export async function getProducts(categorySlug?: string): Promise<Product[]> {
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from("products")
     .select("*, category:categories(*), farmer:farmers(*)")
@@ -64,7 +64,7 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
 // ── CATEGORIES ───────────────────────────────────────────────
 
 export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from("categories")
     .select("*")
@@ -77,7 +77,7 @@ export async function getCategories(): Promise<Category[]> {
 // ── FARMERS ──────────────────────────────────────────────────
 
 export async function getFarmers(): Promise<Farmer[]> {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const { data, error } = await supabase
     .from("farmers")
     .select("*")

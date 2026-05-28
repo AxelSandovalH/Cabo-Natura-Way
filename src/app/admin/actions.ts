@@ -44,8 +44,8 @@ export async function upsertProductAction(formData: FormData) {
     farmer_id:    (formData.get("farmer_id")      as string) || null,
     badge:        (formData.get("badge")          as string).trim() || null,
     badge_color:  (formData.get("badge_color")    as string).trim() || "#2D5016",
-    in_stock:     formData.get("in_stock")    === "true",
-    featured:     formData.get("featured")    === "true",
+    in_stock:     formData.getAll("in_stock").includes("true"),
+    featured:     formData.getAll("featured").includes("true"),
   };
 
   if (id) {
@@ -112,7 +112,7 @@ export async function upsertFarmerAction(formData: FormData) {
     location:     (formData.get("location")     as string).trim(),
     bio:          (formData.get("bio")           as string).trim() || null,
     avatar_emoji: (formData.get("avatar_emoji") as string).trim() || "👨‍🌾",
-    active:       formData.get("active") !== "false",
+    active:       formData.getAll("active").includes("true"),
   };
 
   if (id) {
