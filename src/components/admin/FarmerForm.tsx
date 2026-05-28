@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import type { Farmer } from "@/lib/supabase/types";
 
@@ -13,11 +13,16 @@ interface Props {
 
 export default function FarmerForm({ farmer, action }: Props) {
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError(null);
     const formData = new FormData(e.currentTarget);
-    startTransition(() => action(formData));
+    startTransition(async () => {
+      const result = await action(formData);
+      if (result?.error) setError(result.error);
+    });
   }
 
   const inputCls = "w-full h-11 px-4 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-800 placeholder:text-gray-400 focus:outline-none focus:border-[#2D5016] focus:ring-2 focus:ring-[#2D5016]/10 transition";
@@ -81,6 +86,12 @@ export default function FarmerForm({ farmer, action }: Props) {
         <div className="relative w-11 h-6 bg-gray-200 peer-checked:bg-[#2D5016] rounded-full transition-colors after:content-[''] after:absolute after:top-1 after:left-1 after:w-4 after:h-4 after:bg-white after:rounded-full after:shadow after:transition-transform peer-checked:after:translate-x-5" />
         <span className="text-[13px] font-medium text-gray-600">Active (visible on site)</span>
       </label>
+
+      {error && (
+        <div className="px-4 py-3 bg-red-50 border border-red-100 rounded-xl text-[13px] text-red-600">
+          Error: {error}
+        </div>
+      )}
 
       <div className="flex items-center gap-3 pt-2">
         <button

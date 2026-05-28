@@ -1,8 +1,17 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+
+/** Service-role client — bypasses RLS for trusted server-side writes */
+function adminClient() {
+  return createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 /* ── AUTH ─────────────────────────────────────────────────── */
 
@@ -25,7 +34,7 @@ export async function logoutAction() {
 /* ── PRODUCTS ─────────────────────────────────────────────── */
 
 export async function upsertProductAction(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const id = formData.get("id") as string | null;
 
   const name    = (formData.get("name")    as string).trim();
@@ -63,7 +72,7 @@ export async function upsertProductAction(formData: FormData) {
 }
 
 export async function reorderProductsAction(orderedIds: string[]): Promise<void> {
-  const supabase = await createClient();
+  const supabase = adminClient();
   await supabase.from("products").upsert(
     orderedIds.map((id, i) => ({ id, sort_order: i }))
   );
@@ -73,7 +82,7 @@ export async function reorderProductsAction(orderedIds: string[]): Promise<void>
 }
 
 export async function deleteProductAction(id: string) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) return { error: error.message };
   revalidatePath("/admin/products");
@@ -86,7 +95,7 @@ export async function toggleProductFieldAction(
   field: "in_stock" | "featured",
   value: boolean
 ) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   await supabase.from("products").update({ [field]: value }).eq("id", id);
   revalidatePath("/admin/products");
   revalidatePath("/shop");
@@ -96,7 +105,7 @@ export async function toggleProductFieldAction(
 /* ── ORDERS ───────────────────────────────────────────────── */
 
 export async function updateOrderStatusAction(id: string, status: string) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   await supabase.from("orders").update({ status }).eq("id", id);
   revalidatePath("/admin/orders");
 }
@@ -104,7 +113,7 @@ export async function updateOrderStatusAction(id: string, status: string) {
 /* ── FARMERS ──────────────────────────────────────────────── */
 
 export async function upsertFarmerAction(formData: FormData) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   const id = formData.get("id") as string | null;
 
   const payload = {
@@ -115,12 +124,23 @@ export async function upsertFarmerAction(formData: FormData) {
     active:       formData.getAll("active").includes("true"),
   };
 
+  console.log("[upsertFarmerAction] payload:", JSON.stringify(payload));
+
   if (id) {
-    await supabase.from("farmers").update(payload).eq("id", id);
+    const { error } = await supabase.from("farmers").update(payload).eq("id", id);
+    if (error) {
+      console.error("[upsertFarmerAction] update error:", error.message, error.code);
+      return { error: error.message };
+    }
   } else {
-    await supabase.from("farmers").insert(payload);
+    const { error } = await supabase.from("farmers").insert(payload);
+    if (error) {
+      console.error("[upsertFarmerAction] insert error:", error.message, error.code);
+      return { error: error.message };
+    }
   }
 
+  console.log("[upsertFarmerAction] success");
   revalidatePath("/admin/farmers");
   revalidatePath("/farmers");
   revalidatePath("/");
@@ -128,7 +148,7 @@ export async function upsertFarmerAction(formData: FormData) {
 }
 
 export async function deleteFarmerAction(id: string) {
-  const supabase = await createClient();
+  const supabase = adminClient();
   await supabase.from("farmers").delete().eq("id", id);
   revalidatePath("/admin/farmers");
 }
